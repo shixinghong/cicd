@@ -1,0 +1,17 @@
+apiVersion: task.api.gok8s.fun
+kind: Task
+metadata:
+  name: mytask
+  namespace: default
+spec:
+  steps:
+    - name: step1
+      image:
+      shell:
+        - sh1
+        - sh2
+    - name: step2
+      image:
+      shell:
+        - sh1
+        - sh2
