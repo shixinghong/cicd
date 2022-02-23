@@ -1,0 +1,16 @@
+apiVersion: api.gok8s.fun/v1alpha1
+kind: Task
+metadata:
+  name: mytask
+spec:
+  steps:
+    - name: step1
+      image: busybox
+      command: ["sh","-c"]
+      args:
+        - "echo step1"
+    - name: step2
+      image: busybox
+      command: ["sh","-c"]
+      args:
+        - "echo step2"
