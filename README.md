@@ -186,3 +186,80 @@ func init() {
 	utilruntime.Must(AddToScheme(Scheme))
 }
 ```
+
+#### 控制pod的顺序执行
+- 使用Downward Api [官方链接](https://kubernetes.io/zh/docs/tasks/inject-data-application/downward-api-volume-expose-pod-information/#the-downward-api)
+
+```shell
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kubernetes-downwardapi-volume-example
+  labels:
+    zone: us-est-coast
+    cluster: test-cluster1
+    rack: rack-22
+  annotations:
+    build: two
+    builder: john-doe
+spec:
+  containers:
+    - name: client-container
+      image: k8s.gcr.io/busybox
+      command: ["sh", "-c"]
+      args:
+      - while true; do
+          if [[ -e /etc/podinfo/labels ]]; then
+            echo -en '\n\n'; cat /etc/podinfo/labels; fi;
+          if [[ -e /etc/podinfo/annotations ]]; then
+            echo -en '\n\n'; cat /etc/podinfo/annotations; fi;
+          sleep 5;
+        done;
+      volumeMounts:
+        - name: podinfo
+          mountPath: /etc/podinfo
+  volumes:
+    - name: podinfo   
+      downwardAPI:  ## 使用downward api 将pod本身的变量挂载至容器内
+        items:
+          - path: "labels"
+            fieldRef:
+              fieldPath: metadata.labels
+          - path: "annotations"
+            fieldRef:
+              fieldPath: metadata.annotations
+```
+Downward Api使用中的几个注意事项：
+下面这些信息可以通过环境变量和 downwardAPI 卷提供给容器：
+
+- 能通过 fieldRef 获得的：
+  - metadata.name - Pod 名称
+  - metadata.namespace - Pod 名字空间
+  - metadata.uid - Pod 的 UID
+  - metadata.labels['<KEY>'] - Pod 标签 <KEY> 的值 (例如, metadata.labels['mylabel']）
+  - metadata.annotations['<KEY>'] - Pod 的注解 <KEY> 的值（例如, metadata.annotations['myannotation']）
+
+
+- 能通过 resourceFieldRef 获得的：
+  - 容器的 CPU 约束值
+  - 容器的 CPU 请求值
+  - 容器的内存约束值
+  - 容器的内存请求值
+  - 容器的巨页限制值（前提是启用了 DownwardAPIHugePages 特性门控）
+  - 容器的巨页请求值（前提是启用了 DownwardAPIHugePages 特性门控）
+  - 容器的临时存储约束值
+  - 容器的临时存储请求值
+
+
+- 此外，以下信息可通过 downwardAPI 卷从 fieldRef 获得：
+  - metadata.labels - Pod 的所有标签，以 label-key="escaped-label-value" 格式显示，每行显示一个标签
+  - metadata.annotations - Pod 的所有注解，以 annotation-key="escaped-annotation-value" 格式显示，每行显示一个标签
+   
+
+- 以下信息可通过环境变量获得：
+  - status.podIP - 节点 IP
+  - spec.serviceAccountName - Pod 服务帐号名称, 版本要求 v1.4.0-alpha.3
+  - spec.nodeName - 节点名称, 版本要求 v1.4.0-alpha.3
+  - status.hostIP - 节点 IP, 版本要求 v1.7.0-alpha.1
+
+    

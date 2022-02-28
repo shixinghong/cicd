@@ -39,8 +39,7 @@ func (t *TaskController) Reconcile(ctx context.Context, req reconcile.Request) (
 		return reconcile.Result{}, nil
 	}
 
-	pb := builder.NewPodBuilder(task, t.Client)
-	if err = pb.Build(ctx); err != nil {
+	if err = builder.NewPodBuilder(task, t.Client).Build(ctx); err != nil {
 		return reconcile.Result{}, err
 	}
 	return reconcile.Result{}, nil

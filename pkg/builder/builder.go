@@ -23,7 +23,7 @@ func NewPodBuilder(task *v1alpha1.Task, client client.Client) *PodBuilder {
 func (pb *PodBuilder) Build(ctx context.Context) error {
 	newPod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "task-pod" + pb.task.Name,
+			Name:      "task-pod-" + pb.task.Name,
 			Namespace: pb.task.Namespace,
 		},
 	}
@@ -44,7 +44,7 @@ func (pb *PodBuilder) Build(ctx context.Context) error {
 			UID:        pb.task.UID,
 		},
 	)
-
+	newPod.Annotations["task-order"] = "0"
 	return pb.Client.Create(ctx, newPod)
 
 }
