@@ -2,7 +2,9 @@ package builder
 
 import (
 	"context"
+
 	"github.com/hongshixing/cicd/pkg/apis/task/v1alpha1"
+
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -44,6 +46,7 @@ func (pb *PodBuilder) Build(ctx context.Context) error {
 			UID:        pb.task.UID,
 		},
 	)
+	newPod.Annotations = make(map[string]string)
 	newPod.Annotations["task-order"] = "0"
 	return pb.Client.Create(ctx, newPod)
 
