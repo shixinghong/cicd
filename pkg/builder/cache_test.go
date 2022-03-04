@@ -32,7 +32,6 @@ func TestInitCache(t *testing.T) {
 				v, _ := ImageCache.Get(k)
 				fmt.Println(reflect.TypeOf(v))
 				fmt.Println(v.(*Image).Name)
-
 			}
 		})
 	}
